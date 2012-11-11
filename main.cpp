@@ -21,7 +21,7 @@ void load_dat(std::ifstream& data_file, DATA& data, std::vector<double>& time_po
     }
 
     std::string line;
-    char delim = ',';
+    char delim = '|';
 
     // time points
     getline(data_file, line);
