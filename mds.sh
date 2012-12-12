@@ -4,7 +4,7 @@
 #
 #$ -cwd
 #$ -S /bin/bash
-#$ -pe Mmpi 8
+#$ -pe Mmpi 1
 #$ -l h_vmem=500M
 #$ -l h_cpu=23:00:00
 #$ -R y
@@ -12,7 +12,7 @@
 
 net=$1
 size=1000
-wd="$HOME/data/DREAM/gnw/$net/gnw/Size1000/test/mds"
+wd="$HOME/data/DREAM/gnw/$net/gnw/Size1000/norm_perturbation/mds"
 #wd="$HOME/data/pc12/sohse/120712/"
 #wd="$HOME/work/DREAM/DREAM3_in_silico_challenge/Size$size/gnw/mds"
 #fname="${net}_${size}_rewiring_normed.dat"
@@ -26,7 +26,8 @@ i=$SGE_TASK_ID
 #i=1
 
 #: <<'END'
-for idx in `seq 1 1`; do
+#for idx in `seq 1 100`; do
+idx=$2
 #for i in `seq $((($1-1)*$interval+1)) $(($1*$interval))`;do
 fname=`ls ${wd}/${net}-${idx}_perturbation-${i}_${size}_normed.dat`
 #fname=`ls ${wd}/${net}-full_perturbation-${i}_${size}_normed.dat`
@@ -36,18 +37,18 @@ core=`echo $fname | awk -F. '{ print $1; }'`
 core=`echo $core | awk -F/ '{ print $12; }'`
 #size=`echo $fname | awk -F_ '{ print $2; }'`
 # $HOME/tool/openmpi-1.3.2/bin/mpirun -np $NSLOTS 
-$HOME/tool/openmpi-1.3.2/bin/mpirun -n $NSLOTS ./dtw $fname 1 /export/work/jbao/dist_matrix.bin.$net.$i
+$HOME/tool/openmpi-1.3.2/bin/mpirun -n $NSLOTS ./dtw $fname 1 /export/work/jbao/dist_matrix.bin.$net.$idx.$i
 # $HOME/tool/openmpi-1.3.2/bin/mpirun --mca pls_gridengine_verbose 1 -np $NSLOTS ./dtw $fname 1 /export/work/jbao/dist_matrix.bin.$net.$i
 if [ $? -ne 0 ]; then
     echo 'File not found, now exiting...'
     exit 1
 fi
-mv /export/work/jbao/dist_matrix.bin.$net.$i $HOME/tmp/
+mv /export/work/jbao/dist_matrix.bin.$net.$idx.$i $HOME/tmp/
 #echo $core
-time ./hitmds2 100 2 0.04 0 $HOME/tmp/dist_matrix.bin.$net.$i $size $wd/mds_${core}_euc
+time ./hitmds2 100 2 0.04 0 $HOME/tmp/dist_matrix.bin.$net.$idx.$i $size $wd/mds_${core}_euc
 ./pca $wd/mds_${core}_euc $size 2 $wd/pca_${core}_euc
-rm $HOME/tmp/dist_matrix.bin.$net.$i
-done
+rm $HOME/tmp/dist_matrix.bin.$net.$idx.$i
+#done
 #mail -s "Job done - MDS random 1000" jie.bao@gmail.com < /dev/null
 #END
 

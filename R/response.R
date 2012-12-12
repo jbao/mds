@@ -5,7 +5,7 @@ library(fields)
 library(splancs)
 library(plyr)
 library(doMC)
-library(Rsge)
+#library(Rsge)
 library(ggplot2)
 
 #fontsize <- 20
@@ -13,16 +13,17 @@ library(ggplot2)
 
 #if (FALSE) {
 registerDoMC()
+#print(Sys.getenv('R_LIBS_SITE'))
 
 # Read command-line arguments
 args=(commandArgs(TRUE))
 for (i in 1:length(args)) {
     eval(parse(text=args[[i]]))
 }
-#n <- as.numeric(Sys.getenv("SGE_TASK_ID"))
-#filename <- '~/data/pc12/pca_pc12_egf_14936_normed_euc'
+n <- as.numeric(Sys.getenv("SGE_TASK_ID"))
+#filename <- '~/data/DREAM/gnw/scalefree2/gnw/Size1000/norm_perturbation/mds/pca_scalefree2-1_perturbation-1_1000_normed_euc'
 #prefix <- 'test'
-#outdir <- '~/data/pc12/'
+#outdir <- './'
 
 # Load and fit the MDS data
 #files <- c('~/data/hgf/pca_hgf_17726_normed_euc', '~/data/data_aceton_w_mds.txt', 
@@ -65,7 +66,7 @@ mds.fit <- function(filename) {
     # this is the probability density for each data point
     obj<- list( x=x, y=y, z= matrix(z_len,nrow=pp,byrow=TRUE))
     pdensity <- interp.surface( obj, coord)
-    list(coord=coord, pp=pp, x=x, y=y, x_len=x_len, y_len=y_len, z_len=z_len, dx=dx,
+    fit <- list(coord=coord, pp=pp, x=x, y=y, x_len=x_len, y_len=y_len, z_len=z_len, dx=dx,
         dy=dy, pdensity=pdensity)
 }
 #all.fit <- NULL
@@ -85,6 +86,7 @@ fit <- mds.fit(filename)
 #pdensity[pdensity<1e-5] = 0
 #print('Calculating contour lines...')
 #for (i in 1:nrow(coord)) {
+#pd <- fit$pdensity
 getPval <- function(pd, fit) {
     #print(paste('density = ',pd,sep=''))
     mycontour <- contourLines(fit$x, fit$y, matrix(log10(fit$z_len),nrow=fit$pp,
